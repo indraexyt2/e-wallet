@@ -1,0 +1,38 @@
+package external
+
+import (
+	"e-wallet-notification/helpers"
+	"gopkg.in/gomail.v2"
+	"strconv"
+)
+
+type Email struct {
+	To      string
+	From    string
+	Subject string
+	Body    string
+}
+
+func (e *Email) SendEmail() error {
+	mailer := gomail.NewMessage()
+	mailer.SetHeader("To", e.To)
+	mailer.SetHeader("From", e.From)
+	mailer.SetHeader("Subject", e.Subject)
+	mailer.SetBody("text/html", e.Body)
+
+	configPort := helpers.GetEnv("SMTP_PORT", "25")
+	intPort, _ := strconv.Atoi(configPort)
+
+	dialer := gomail.Dialer{
+		Host:     helpers.GetEnv("SMTP_HOST", ""),
+		Port:     intPort,
+		Username: helpers.GetEnv("SMTP_USER", ""),
+		Password: helpers.GetEnv("SMTP_PASSWORD", ""),
+	}
+
+	err := dialer.DialAndSend(mailer)
+	if err != nil {
+		return err
+	}
+	return nil
+}
