@@ -11,10 +11,15 @@ import (
 )
 
 func main() {
-	strPayload := ``
+	strPayload := `{
+    "amount": 1000,
+    "reference": "7657852672",
+    "transaction_type": "DEBIT",
+    "wallet_id": 1
+}`
 
-	endpoint := `/wallet/v1/ex/1/unlink`
-	timestamp := `2025-01-18T21:47:02+07:00`
+	endpoint := `/wallet/v1/ex/transaction`
+	timestamp := `2025-01-20T10:22:17+07:00`
 	re := regexp.MustCompile(`[^a-zA-Z0-9]+`)
 	strPayload = re.ReplaceAllString(strPayload, "")
 	strPayload = strings.ToLower(strPayload) + timestamp + endpoint

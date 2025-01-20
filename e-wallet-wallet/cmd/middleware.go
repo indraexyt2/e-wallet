@@ -98,6 +98,7 @@ func (d *Dependency) MiddlewareSignatureValidation(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	fmt.Println("timestamp: ", timestamp)
 
 	requestTime, err := time.Parse(time.RFC3339, timestamp)
 	if err != nil || time.Since(requestTime) > 5*time.Minute {

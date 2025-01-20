@@ -615,3 +615,43 @@ func (api *WalletHandler) ExGetBalance(c *gin.Context) {
 		resp,
 	)
 }
+
+func (api *WalletHandler) ExternalTransaction(c *gin.Context) {
+	var (
+		log = helpers.Logger
+		req = &models.ExternalTransactionRequest{}
+	)
+
+	if err := c.ShouldBindJSON(req); err != nil {
+		log.Error("failed to parse request body: ", err)
+		helpers.SendResponseHTTP(
+			c,
+			http.StatusBadRequest,
+			false,
+			"bad request",
+			nil,
+		)
+		return
+	}
+
+	resp, err := api.WalletService.ExternalTransaction(c.Request.Context(), req)
+	if err != nil {
+		log.Error("failed to add transaction", err)
+		helpers.SendResponseHTTP(
+			c,
+			http.StatusInternalServerError,
+			false,
+			"failed to add transaction",
+			nil,
+		)
+		return
+	}
+
+	helpers.SendResponseHTTP(
+		c,
+		http.StatusOK,
+		true,
+		"success",
+		resp,
+	)
+}

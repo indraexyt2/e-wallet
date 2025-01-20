@@ -45,6 +45,35 @@ func (r *WalletRepository) UpdateBalance(ctx context.Context, userID int, amount
 	return wallet, nil
 }
 
+func (r *WalletRepository) UpdateBalanceById(ctx context.Context, walletID int, amount float64) (*models.Wallet, error) {
+	var wallet *models.Wallet
+	err := r.DB.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(&models.Wallet{}).
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Select("balance").
+			Where("id = ?", walletID).
+			Take(&wallet).Error
+
+		if (wallet.Balance + amount) < 0 {
+			return fmt.Errorf("insufficient balance")
+		}
+
+		err = tx.Model(&models.Wallet{}).
+			Where("id = ?", walletID).
+			Update("balance", gorm.Expr("balance + ?", amount)).Error
+
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to update balance: %w", err)
+	}
+
+	return wallet, nil
+}
+
 func (r *WalletRepository) CreateWalletTrx(ctx context.Context, walletTrx *models.WalletTransaction) error {
 	return r.DB.Create(walletTrx).Error
 }
