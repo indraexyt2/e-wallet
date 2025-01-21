@@ -1,0 +1,34 @@
+version: '3.8'
+
+networks:
+  e-commerce-infra_e-commerce:
+    external: true
+
+services:
+  wallet:
+    build: ../e-wallet-wallet
+    image: e-wallet-wallet:1.0.0
+    container_name: wallet
+    ports:
+      - 8081:8081
+    networks:
+      - e-commerce-infra_e-commerce
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: e_wallet_wallet
+    ports:
+      - 3307:3306
+    networks:
+      - e-commerce-infra_e-commerce
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
+    driver: local
